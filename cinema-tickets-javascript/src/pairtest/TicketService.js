@@ -60,10 +60,23 @@ export default class TicketService {
   }
 
   #validateTicketRequest(...ticketTypeRequests) {
-     // Throw error is total number of ticket requests is 0 or > 20
-     if (ticketTypeRequests.length < 1 || ticketTypeRequests.length > 20) {
-       throw new InvalidPurchaseException()
-     }
+    // Throw error ticket request is empty 
+    if (ticketTypeRequests.length < 1) {
+      throw new InvalidPurchaseException()
+    }
+
+    const totalTickets = this.#getTotalNumberOfRequestedTickets(...ticketTypeRequests);
+    // Throw error is total number of ticket requests is 0 or >20 
+    if (totalTickets < 1 || totalTickets > 20) {
+      throw new InvalidPurchaseException();
+    }
+  }
+
+  #getTotalNumberOfRequestedTickets(...ticketTypeRequests) {
+    const totalTickets = ticketTypeRequests.reduce((accumulator, ticket) => {
+      return accumulator + ticket.getNoOfTickets();
+    }, 0);
+    return totalTickets;
   }
 
   #validatePurchaseRequest(...ticketTypeRequests) {

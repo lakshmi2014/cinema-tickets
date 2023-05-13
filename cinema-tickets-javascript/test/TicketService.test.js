@@ -67,7 +67,7 @@ describe("purchaseTicket", () => {
     }
   }) 
 
-  it ('throws InvalidPurchaseException when total number of tickets is zero', () => {
+  it ('throws InvalidPurchaseException when requested tickets are empty', () => {
     //When 
     try {
      ticketService.purchaseTickets(1, ...[]);
@@ -80,15 +80,32 @@ describe("purchaseTicket", () => {
     }
   })  
 
+  it ('throws InvalidPurchaseException when total number of tickets is zero', () => {
+    //given
+    const obj = new TicketTypeRequest();
+    jest.spyOn(obj, "getNoOfTickets").mockReturnValue(0);
+    jest.spyOn(obj, "getTicketType").mockReturnValue('ADULT');
+    //When 
+    try {
+     ticketService.purchaseTickets(1, ...[obj]);
+    } catch (e) {
+      // then
+      expect(e).toBeInstanceOf(InvalidPurchaseException);
+      // asserts no payment made and no seats reserved
+      expect(ticketService.totalAmount).toBe(0);
+      expect(ticketService.totalSeatsAllocated).toBe(0);
+    }
+  })  
+
   it ('throws InvalidPurchaseException when total number of tickets is greater then 20', () => {
     //given
     const obj = new TicketTypeRequest();
-    jest.spyOn(obj, "getNoOfTickets").mockReturnValue(1);
+    jest.spyOn(obj, "getNoOfTickets").mockReturnValue(21);
     jest.spyOn(obj, "getTicketType").mockReturnValue('ADULT');
   
     //When 
     try {
-     ticketService.purchaseTickets(1, ...new Array(21).fill(obj));
+     ticketService.purchaseTickets(1, ...[obj]);
     } catch (e) {
       // then
       expect(e).toBeInstanceOf(InvalidPurchaseException);
